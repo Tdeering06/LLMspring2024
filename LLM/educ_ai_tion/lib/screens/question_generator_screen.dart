@@ -1,4 +1,6 @@
+import 'package:educ_ai_tion/services/openai_services.dart'; // FILEPATH: LLM/educ_ai_tion/lib/services/openai_services.dart
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 // Question Generator Screen
@@ -7,69 +9,104 @@ import 'package:flutter/material.dart';
 // Users can input topics or specific questions, and the app will use the OpenAI service to generate corresponding questions and answers. 
 // Options for customizing the difficulty level and subject area are also provided.
 
-class QuestionGeneratorScreen extends StatefulWidget {
+// class QuestionGeneratorScreen extends StatefulWidget {
+//   @override
+//   _QuestionGeneratorScreenState createState() => _QuestionGeneratorScreenState();
+// }
+
+// class _QuestionGeneratorScreenState extends State<QuestionGeneratorScreen> {
+//   final TextEditingController _controller = TextEditingController();
+//   String _generatedQuestions = "";
+
+//   void _generateQuestions() async {
+//     // Placeholder for OpenAI API call
+//     // Simulate an API response
+//     const response = "Here will be the generated questions based on the input parameters. This is a placeholder response.";
+
+//     setState(() {
+//       _generatedQuestions = response;
+//     });
+//     // Future integration with OpenAI API will go here
+//     // You will use _controller.text as the input to the OpenAI API
+//   }
+
+//   void _saveResponse() {
+//   // Placeholder for your saving logic
+//   // For example, saving the _generatedQuestions to a file or cloud storage
+
+//   // Show a SnackBar upon saving
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     SnackBar(content: Text('Saved!')),
+//   );
+// }
+
+//   void _clearResponse() async {
+//     final bool confirmClear = await showDialog(
+//       context: context,
+//       builder: (context) {
+//         return AlertDialog(
+//           title: const Text('Confirmation'),
+//           content: const Text('Are you sure you want to clear the generated questions?'),
+//           actions: <Widget>[
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.of(context).pop(true);
+//               },
+//               child: const Text('Yes'),
+//             ),
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.of(context).pop(false);
+//               },
+//               child: const Text('No'),
+//             ),
+//           ],
+//         );
+//       },
+//     ) ?? false; 
+//     if (confirmClear){
+//       setState(() {
+//         _generatedQuestions = "";
+//       });
+//     }
+//   }
+//START  openai_services.dart integration ---should be refactored
+class GeneratedQuestionsScreen extends StatefulWidget {
   @override
-  _QuestionGeneratorScreenState createState() => _QuestionGeneratorScreenState();
+  _GeneratedQuestionsScreenState createState() =>
+      _GeneratedQuestionsScreenState();
 }
 
-class _QuestionGeneratorScreenState extends State<QuestionGeneratorScreen> {
+class _GeneratedQuestionsScreenState extends State<GeneratedQuestionsScreen> {
   final TextEditingController _controller = TextEditingController();
-  String _generatedQuestions = "";
+  final OpenAIService _openAIService = OpenAIService();
+  List<String> _messages = [];
 
-  void _generateQuestions() async {
-    // Placeholder for OpenAI API call
-    // Simulate an API response
-    const response = "Here will be the generated questions based on the input parameters. This is a placeholder response.";
-
+  void _sendMessage() async {
+    final userMessage = _controller.text;
+    if (userMessage.trim().isEmpty) {
+      return; // Don't send empty messages
+    }
     setState(() {
-      _generatedQuestions = response;
+      _messages.add("You: $userMessage");
+      _controller.clear(); // Clear the input field
     });
-    // Future integration with OpenAI API will go here
-    // You will use _controller.text as the input to the OpenAI API
-  }
 
-  void _saveResponse() {
-  // Placeholder for your saving logic
-  // For example, saving the _generatedQuestions to a file or cloud storage
-
-  // Show a SnackBar upon saving
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Saved!')),
-  );
-}
-
-  void _clearResponse() async {
-    final bool confirmClear = await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmation'),
-          content: const Text('Are you sure you want to clear the generated questions?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Yes'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('No'),
-            ),
-          ],
-        );
-      },
-    ) ?? false; 
-    if (confirmClear){
+    try {
+      // method for sending a message and getting a response
+      final aiResponse = await _openAIService.generateText(userMessage);
       setState(() {
-        _generatedQuestions = "";
+        _messages.add("AI: $aiResponse");
+      });
+    } catch (e) {
+      setState(() {
+        _messages
+            .add("AI: Sorry, I couldn't fetch a response. Try again later.");
       });
     }
   }
+  //FINISH  openai_services.dart integration ---should be refactored
 
-  
 
   @override
   Widget build(BuildContext context) {
