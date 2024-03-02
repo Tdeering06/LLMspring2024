@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^0.13.3 # for making http requests to openai
+  flutter_dotenv: ^5.1.0 # for loading environment variables
   file_picker: ^6.1.1
   firebase_core: ^2.25.4
   firebase_analytics: ^10.8.6
@@ -34,3 +36,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - .env  # for loading environment variables
