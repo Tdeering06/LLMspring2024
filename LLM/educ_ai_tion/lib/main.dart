@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'screens/question_generator_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';//imports method to use .env file
 
 void main() async {
   // Initialize Firebase
@@ -15,7 +16,11 @@ void main() async {
   );
   runApp(const MainApp());
 }
-
+// Below needs to happen in order for the key to load and communicate with api -- NEEDS to be integrated with above.
+// Future main() async {
+//   await dotenv.load(fileName: ".env");
+//   runApp(MainApp());
+// }
 class MainApp extends StatelessWidget {
   const MainApp({Key? key});
 
